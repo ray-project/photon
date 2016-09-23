@@ -42,26 +42,30 @@ void new_client_connection(int listener_sock, local_scheduler_state *s) {
 
 void read_task_from_socket(local_scheduler_state *s, int client_sock) {
   task_spec *task = read_task(client_sock);
-  task_queue_submit_task(s->db, globally_unique_id(), task);
+  unique_id id = globally_unique_id();
+  // task_queue_submit_task(s->db, globally_unique_id(), task);
+  task_queue_submit_task(s->db, id, task);
+  // object_table_add(s->db, id);
   free(task);
 }
 
 void run_event_loop(int sock, local_scheduler_state *s) {
+  unique_id id = globally_unique_id();
+  object_table_add(s->db, id);
+  // object_table_lookup(&conn, id, test_callback);
   while (1) {
-    int num_ready = event_loop_poll(s->loop);
+    int num_ready = event_loop_poll(s->loop, -1);
     if (num_ready < 0) {
       LOG_ERR("poll failed");
       exit(-1);
     }
     for (int i = 0; i < event_loop_size(s->loop); ++i) {
-      printf("%d event_loop_type: %d\n", i, event_loop_type(s->loop, i));
       struct pollfd *waiting = event_loop_get(s->loop, i);
       if (waiting->revents == 0)
         continue;
       if (waiting->fd == sock) {
         new_client_connection(sock, s);
       } else if (event_loop_type(s->loop, i) == CONNECTION_REDIS) {
-        printf("redis event %d\n", i);
         db_event(s->db);
       } else {
         read_task_from_socket(s, waiting->fd);
