@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall --std=c99 -D_XOPEN_SOURCE=500 -D_POSIX_C_SOURCE=200809L
+CFLAGS = -g -O2 -Wall --std=c99 -D_XOPEN_SOURCE=500 -D_POSIX_C_SOURCE=200809L -Icommon/thirdparty
 BUILD = build
 
 all: $(BUILD)/halo_scheduler $(BUILD)/halo_client.so

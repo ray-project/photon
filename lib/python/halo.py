@@ -17,6 +17,7 @@ def make_id(string):
   return UniqueID(unique_id=ID(*unique_id))
 
 class Task(object):
+  __slots__ = ["task_spec"]
   def __init__(self, function_id, args):
     function_id = make_id(function_id)
     self.task_spec = ctypes.c_void_p(halo_client_library.alloc_task_spec(function_id, len(args), 1, 0))
@@ -34,3 +35,13 @@ class HaloClient(object):
   def submit(self, function_id, args):
     task = Task(function_id, args)
     halo_client_library.halo_submit(self.halo_conn, task.task_spec)
+
+function_id = make_id(20 * "H")
+
+l = [make_id(20 * "a"), make_id(20 * "b"), make_id(20 * "c")]
+
+def submit_task(conn):
+  task_spec = ctypes.c_void_p(halo_client_library.alloc_task_spec(function_id, len(l), 1, 0))
+  for arg in l:
+    halo_client_library.task_args_add_ref(task_spec, arg)
+  halo_client_library.halo_submit(conn, task_spec)
