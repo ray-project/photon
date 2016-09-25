@@ -23,11 +23,21 @@ typedef struct {
 } local_scheduler_state;
 
 void init_local_scheduler(local_scheduler_state *s) {
-  s->loop = malloc(sizeof(event_loop));
-  event_loop_init(s->loop);
+  s->loop = event_loop_create();
 };
 
-void new_client_connection(int listener_sock, local_scheduler_state *s) {
+void process_submitted_task(event_loop *loop, int client_sock, void *context, int events) {
+  local_scheduler_state *s = context;
+  task_spec *task = read_task(client_sock);
+  unique_id id = globally_unique_id();
+  task_queue_submit_task(s->db, id, task);
+  if (task != NULL) {
+    free(task);
+  }
+}
+
+void new_client_connection(event_loop *loop, int listener_sock, void *context, int events) {
+  local_scheduler_state *s = context;
   int new_socket = accept(listener_sock, NULL, NULL);
   if (new_socket < 0) {
     if (errno != EWOULDBLOCK) {
@@ -36,42 +46,8 @@ void new_client_connection(int listener_sock, local_scheduler_state *s) {
     }
     return;
   }
-  event_loop_attach(s->loop, 0, NULL, new_socket, POLLIN);
-  LOG_INFO("new connection with index %" PRId64, event_loop_size(s->loop));
-}
-
-void read_task_from_socket(local_scheduler_state *s, int client_sock) {
-  task_spec *task = read_task(client_sock);
-  unique_id id = globally_unique_id();
-  // task_queue_submit_task(s->db, globally_unique_id(), task);
-  task_queue_submit_task(s->db, id, task);
-  // object_table_add(s->db, id);
-  free(task);
-}
-
-void run_event_loop(int sock, local_scheduler_state *s) {
-  unique_id id = globally_unique_id();
-  object_table_add(s->db, id);
-  // object_table_lookup(&conn, id, test_callback);
-  while (1) {
-    int num_ready = event_loop_poll(s->loop, -1);
-    if (num_ready < 0) {
-      LOG_ERR("poll failed");
-      exit(-1);
-    }
-    for (int i = 0; i < event_loop_size(s->loop); ++i) {
-      struct pollfd *waiting = event_loop_get(s->loop, i);
-      if (waiting->revents == 0)
-        continue;
-      if (waiting->fd == sock) {
-        new_client_connection(sock, s);
-      } else if (event_loop_type(s->loop, i) == CONNECTION_REDIS) {
-        db_event(s->db);
-      } else {
-        read_task_from_socket(s, waiting->fd);
-      }
-    }
-  }
+  event_loop_add_file(s->loop, new_socket, EVENT_LOOP_READ, process_submitted_task, s);
+  LOG_INFO("new connection with fd %d", new_socket);
 }
 
 void start_server(const char* socket_name, const char* redis_addr, int redis_port) {
@@ -95,12 +71,14 @@ void start_server(const char* socket_name, const char* redis_addr, int redis_por
   listen(fd, 5);
   local_scheduler_state state;
   init_local_scheduler(&state);
-  /* Add listening socket. */
-  event_loop_attach(state.loop, CONNECTION_LISTENER, NULL, fd, POLLIN);
+
   state.db = malloc(sizeof(db_conn));
   db_connect(redis_addr, redis_port, "halo", "", -1, state.db);
-  db_attach(state.db, state.loop, CONNECTION_REDIS);
-  run_event_loop(fd, &state);
+  db_attach(state.db, state.loop);
+  
+  /* Run event loop. */
+  event_loop_add_file(state.loop, fd, EVENT_LOOP_READ, new_client_connection, &state);
+  event_loop_run(state.loop);
 }
 
 int main(int argc, char *argv[]) {
