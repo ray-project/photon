@@ -1,4 +1,4 @@
-echo "Adding Halo to PYTHONPATH" 1>&2
+echo "Adding Photon to PYTHONPATH" 1>&2
 
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)
 
