@@ -3,7 +3,9 @@ import os
 
 photon_client_library_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../../build/photon_client.so")
 photon_client_library = ctypes.cdll.LoadLibrary(photon_client_library_path)
+photon_client_library.alloc_task_spec.restype = ctypes.c_void_p
 photon_client_library.photon_connect.restype = ctypes.c_void_p
+photon_client_library.photon_submit.restype = None
 
 ID = ctypes.c_ubyte * 20
 
