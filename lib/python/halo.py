@@ -1,9 +1,9 @@
 import ctypes
 import os
 
-halo_client_library_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../../build/halo_client.so")
-halo_client_library = ctypes.cdll.LoadLibrary(halo_client_library_path)
-halo_client_library.halo_connect.restype = ctypes.c_void_p
+photon_client_library_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../../build/photon_client.so")
+photon_client_library = ctypes.cdll.LoadLibrary(photon_client_library_path)
+photon_client_library.photon_connect.restype = ctypes.c_void_p
 
 ID = ctypes.c_ubyte * 20
 
@@ -19,18 +19,18 @@ def make_id(string):
 class Task(object):
   def __init__(self, function_id, args):
     function_id = make_id(function_id)
-    self.task_spec = ctypes.c_void_p(halo_client_library.alloc_task_spec(function_id, len(args), 1, 0))
+    self.task_spec = ctypes.c_void_p(photon_client_library.alloc_task_spec(function_id, len(args), 1, 0))
     for arg in args:
-      halo_client_library.task_args_add_ref(self.task_spec, arg)
- 
-  def __del__(self):
-    halo_client_library.free_task_spec(self.task_spec)
+      photon_client_library.task_args_add_ref(self.task_spec, arg)
 
-class HaloClient(object):
+  def __del__(self):
+    photon_client_library.free_task_spec(self.task_spec)
+
+class PhotonClient(object):
 
   def __init__(self, socket_name):
-    self.halo_conn = ctypes.c_void_p(halo_client_library.halo_connect(socket_name))
+    self.photon_conn = ctypes.c_void_p(photon_client_library.photon_connect(socket_name))
 
   def submit(self, function_id, args):
     task = Task(function_id, args)
-    halo_client_library.halo_submit(self.halo_conn, task.task_spec)
+    photon_client_library.photon_submit(self.photon_conn, task.task_spec)

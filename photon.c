@@ -11,7 +11,7 @@
 #include "state/db.h"
 #include "event_loop.h"
 #include "task.h"
-#include "halo.h"
+#include "photon.h"
 
 typedef struct {
   event_loop *loop;
@@ -69,9 +69,9 @@ void start_server(const char* socket_name, const char* redis_addr, int redis_por
   local_scheduler_state state;
   init_local_scheduler(&state);
 
-  state.db = db_connect(redis_addr, redis_port, "halo", "", -1);
+  state.db = db_connect(redis_addr, redis_port, "photon", "", -1);
   db_attach(state.db, state.loop);
-  
+
   /* Run event loop. */
   event_loop_add_file(state.loop, fd, EVENT_LOOP_READ, new_client_connection, &state);
   event_loop_run(state.loop);

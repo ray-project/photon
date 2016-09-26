@@ -1,5 +1,5 @@
-#ifndef HALO_SCHEDULER
-#define HALO_SCHEDULER
+#ifndef PHOTON_SCHEDULER
+#define PHOTON_SCHEDULER
 
 /* Establish a connection to a new client. */
 void new_client_connection(local_scheduler_state *s, int listener_sock);
