@@ -11,6 +11,7 @@ $(BUILD)/halo_scheduler: halo.h halo.c common
 	$(CC) $(CFLAGS) -o $@ halo.c common/build/libcommon.a common/thirdparty/hiredis/libhiredis.a -Icommon/thirdparty -Icommon/
 
 common: FORCE
+	git submodule update --init --recursive
 	cd common; make
 
 clean:

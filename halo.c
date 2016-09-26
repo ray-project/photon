@@ -7,9 +7,6 @@
 
 #include "utarray.h"
 #include "common.h"
-/* TODO(pcm): Get rid of this by changing the API of
- * db_connect to return a db_conn */
-#include "state/redis.h"
 #include "state/task_queue.h"
 #include "state/db.h"
 #include "event_loop.h"
@@ -18,7 +15,7 @@
 
 typedef struct {
   event_loop *loop;
-  db_conn *db;
+  db_handle *db;
   UT_array *task_queue;
 } local_scheduler_state;
 
@@ -72,8 +69,7 @@ void start_server(const char* socket_name, const char* redis_addr, int redis_por
   local_scheduler_state state;
   init_local_scheduler(&state);
 
-  state.db = malloc(sizeof(db_conn));
-  db_connect(redis_addr, redis_port, "halo", "", -1, state.db);
+  state.db = db_connect(redis_addr, redis_port, "halo", "", -1);
   db_attach(state.db, state.loop);
   
   /* Run event loop. */

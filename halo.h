@@ -7,10 +7,4 @@ struct halo_conn_impl {
   int conn;
 };
 
-enum conn_type {
-  CONNECTION_LISTENER,
-  CONNECTION_REDIS,
-  CONNECTION_CLIENT
-};
-
 #endif
