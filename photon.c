@@ -38,9 +38,6 @@ void process_message(event_loop *loop, int client_sock, void *context, int event
         CHECK(task_size(task) == length);
         unique_id id = globally_unique_id();
         task_queue_submit_task(s->db, id, task);
-        if (task != NULL) {
-          free(task);
-        }
       }
       break;
     case TASK_DONE: {
@@ -58,6 +55,7 @@ void process_message(event_loop *loop, int client_sock, void *context, int event
       /* This code should be unreachable. */
       CHECK(0);
   }
+  free(message);
 }
 
 void new_client_connection(event_loop *loop, int listener_sock, void *context, int events) {
