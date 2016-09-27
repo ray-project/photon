@@ -15,7 +15,13 @@ void photon_submit(photon_conn *conn, task_spec *task);
 /* Get next task for this client. */
 task_spec *photon_get_task(photon_conn *conn);
 
+/* Tell the local scheduler that the client has finished executing a task. */
+void photon_task_done(photon_conn *conn);
+
 /* Disconnect from the local scheduler. */
 void photon_disconnect(photon_conn *conn);
+
+/* Send a log message to the local scheduler. */
+void photon_log_message(photon_conn *conn);
 
 #endif

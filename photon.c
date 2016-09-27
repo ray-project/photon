@@ -12,6 +12,7 @@
 #include "event_loop.h"
 #include "task.h"
 #include "photon.h"
+#include "io.h"
 
 typedef struct {
   event_loop *loop;
@@ -23,13 +24,39 @@ void init_local_scheduler(local_scheduler_state *s) {
   s->loop = event_loop_create();
 };
 
-void process_submitted_task(event_loop *loop, int client_sock, void *context, int events) {
+void process_message(event_loop *loop, int client_sock, void *context, int events) {
   local_scheduler_state *s = context;
-  task_spec *task = read_task(client_sock);
-  unique_id id = globally_unique_id();
-  task_queue_submit_task(s->db, id, task);
-  if (task != NULL) {
-    free(task);
+
+  uint8_t *message;
+  int64_t type;
+  int64_t length;
+  read_message(client_sock, &type, &length, &message);
+
+  switch (type) {
+    case SUBMIT_TASK: {
+        task_spec *task = (task_spec *) message;
+        CHECK(task_size(task) == length);
+        unique_id id = globally_unique_id();
+        task_queue_submit_task(s->db, id, task);
+        if (task != NULL) {
+          free(task);
+        }
+      }
+      break;
+    case TASK_DONE: {
+      }
+      break;
+    case DISCONNECT_CLIENT: {
+        LOG_INFO("Disconnecting client on fd %d", client_sock);
+        event_loop_remove_file(loop, client_sock);
+      }
+      break;
+    case LOG_MESSAGE: {
+      }
+      break;
+    default:
+      /* This code should be unreachable. */
+      CHECK(0);
   }
 }
 
@@ -43,7 +70,7 @@ void new_client_connection(event_loop *loop, int listener_sock, void *context, i
     }
     return;
   }
-  event_loop_add_file(s->loop, new_socket, EVENT_LOOP_READ, process_submitted_task, s);
+  event_loop_add_file(s->loop, new_socket, EVENT_LOOP_READ, process_message, s);
   LOG_INFO("new connection with fd %d", new_socket);
 }
 
