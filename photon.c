@@ -1,29 +1,28 @@
-#include <stdlib.h>
+#include <inttypes.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <inttypes.h>
+#include <unistd.h>
 
-#include "utarray.h"
 #include "common.h"
-#include "state/task_queue.h"
-#include "state/db.h"
 #include "event_loop.h"
-#include "task.h"
-#include "photon.h"
 #include "io.h"
+#include "photon.h"
+#include "state/db.h"
+#include "state/task_queue.h"
+#include "task.h"
+#include "utarray.h"
 
 typedef struct {
   db_handle *db;
   UT_array *task_queue;
 } local_scheduler_state;
 
-event_loop *init_local_scheduler() {
-  return event_loop_create();
-};
+event_loop *init_local_scheduler() { return event_loop_create(); };
 
-void process_message(event_loop *loop, int client_sock, void *context, int events) {
+void process_message(event_loop *loop, int client_sock, void *context,
+                     int events) {
   local_scheduler_state *s = context;
 
   uint8_t *message;
@@ -32,23 +31,23 @@ void process_message(event_loop *loop, int client_sock, void *context, int event
   read_message(client_sock, &type, &length, &message);
 
   switch (type) {
-    case SUBMIT_TASK: {
-      task_spec *task = (task_spec *) message;
-      CHECK(task_size(task) == length);
-      unique_id id = globally_unique_id();
-      task_queue_submit_task(s->db, id, task);
-    } break;
-    case TASK_DONE: {
-    } break;
-    case DISCONNECT_CLIENT: {
-      LOG_INFO("Disconnecting client on fd %d", client_sock);
-      event_loop_remove_file(loop, client_sock);
-    } break;
-    case LOG_MESSAGE: {
-    } break;
-    default:
-      /* This code should be unreachable. */
-      CHECK(0);
+  case SUBMIT_TASK: {
+    task_spec *task = (task_spec *)message;
+    CHECK(task_size(task) == length);
+    unique_id id = globally_unique_id();
+    task_queue_submit_task(s->db, id, task);
+  } break;
+  case TASK_DONE: {
+  } break;
+  case DISCONNECT_CLIENT: {
+    LOG_INFO("Disconnecting client on fd %d", client_sock);
+    event_loop_remove_file(loop, client_sock);
+  } break;
+  case LOG_MESSAGE: {
+  } break;
+  default:
+    /* This code should be unreachable. */
+    CHECK(0);
   }
   free(message);
 }
@@ -61,7 +60,7 @@ void new_client_connection(event_loop *loop, int listener_sock, void *context,
   LOG_INFO("new connection with fd %d", new_socket);
 }
 
-void start_server(const char* socket_name, const char* redis_addr,
+void start_server(const char *socket_name, const char *redis_addr,
                   int redis_port) {
   int fd = bind_ipc_sock(socket_name);
   local_scheduler_state state;
@@ -71,8 +70,7 @@ void start_server(const char* socket_name, const char* redis_addr,
   db_attach(state.db, loop);
 
   /* Run event loop. */
-  event_loop_add_file(loop, fd, EVENT_LOOP_READ, new_client_connection,
-                      &state);
+  event_loop_add_file(loop, fd, EVENT_LOOP_READ, new_client_connection, &state);
   event_loop_run(loop);
 }
 

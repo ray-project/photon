@@ -1,8 +1,8 @@
 #include "photon_client.h"
 
-#include <stdlib.h>
 #include "common/io.h"
 #include "common/task.h"
+#include <stdlib.h>
 
 photon_conn *photon_connect(const char *photon_socket) {
   photon_conn *result = malloc(sizeof(photon_conn));
@@ -11,7 +11,7 @@ photon_conn *photon_connect(const char *photon_socket) {
 }
 
 void photon_submit(photon_conn *conn, task_spec *task) {
-  write_message(conn->conn, SUBMIT_TASK, task_size(task), (uint8_t *) task);
+  write_message(conn->conn, SUBMIT_TASK, task_size(task), (uint8_t *)task);
 }
 
 void photon_task_done(photon_conn *conn) {
