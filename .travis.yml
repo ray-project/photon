@@ -34,5 +34,8 @@ install:
   - make
 
 script:
+  - cd common
+  - make test
+  - cd ..
   - source setup-env.sh
   - python test/test.py
