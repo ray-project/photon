@@ -15,13 +15,12 @@
 #include "io.h"
 
 typedef struct {
-  event_loop *loop;
   db_handle *db;
   UT_array *task_queue;
 } local_scheduler_state;
 
-void init_local_scheduler(local_scheduler_state *s) {
-  s->loop = event_loop_create();
+event_loop *init_local_scheduler() {
+  return event_loop_create();
 };
 
 void process_message(event_loop *loop, int client_sock, void *context, int events) {
@@ -65,7 +64,7 @@ void new_client_connection(event_loop *loop, int listener_sock, void *context,
     }
     return;
   }
-  event_loop_add_file(s->loop, new_socket, EVENT_LOOP_READ, process_message, s);
+  event_loop_add_file(loop, new_socket, EVENT_LOOP_READ, process_message, s);
   LOG_INFO("new connection with fd %d", new_socket);
 }
 
@@ -90,15 +89,15 @@ void start_server(const char* socket_name, const char* redis_addr,
   bind(fd, (struct sockaddr*)&addr, sizeof(addr));
   listen(fd, 5);
   local_scheduler_state state;
-  init_local_scheduler(&state);
+  event_loop *loop = init_local_scheduler();
 
   state.db = db_connect(redis_addr, redis_port, "photon", "", -1);
-  db_attach(state.db, state.loop);
+  db_attach(state.db, loop);
 
   /* Run event loop. */
-  event_loop_add_file(state.loop, fd, EVENT_LOOP_READ, new_client_connection,
+  event_loop_add_file(loop, fd, EVENT_LOOP_READ, new_client_connection,
                       &state);
-  event_loop_run(state.loop);
+  event_loop_run(loop);
 }
 
 int main(int argc, char *argv[]) {
