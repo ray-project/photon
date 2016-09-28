@@ -4,7 +4,10 @@
 #include "common/task.h"
 #include "photon.h"
 
-typedef struct photon_conn_impl photon_conn;
+typedef struct {
+  /* File descriptor of the Unix domain socket that connects to photon. */
+  int conn;
+} photon_conn;
 
 /* Connect to the local scheduler. */
 photon_conn *photon_connect(const char *photon_socket);
