@@ -63,24 +63,7 @@ void new_client_connection(event_loop *loop, int listener_sock, void *context,
 
 void start_server(const char* socket_name, const char* redis_addr,
                   int redis_port) {
-  int fd = socket(AF_UNIX, SOCK_STREAM, 0);
-  if (fd == -1) {
-    LOG_ERR("socket error");
-    exit(-1);
-  }
-  int on = 1;
-  if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on)) < 0) {
-    LOG_ERR("setsockopt failed");
-    close(fd);
-    exit(-1);
-  }
-  struct sockaddr_un addr;
-  memset(&addr, 0, sizeof(addr));
-  addr.sun_family = AF_UNIX;
-  strncpy(addr.sun_path, socket_name, sizeof(addr.sun_path) - 1);
-  unlink(socket_name);
-  bind(fd, (struct sockaddr*)&addr, sizeof(addr));
-  listen(fd, 5);
+  int fd = bind_ipc_sock(socket_name);
   local_scheduler_state state;
   event_loop *loop = init_local_scheduler();
 
