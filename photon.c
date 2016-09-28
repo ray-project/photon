@@ -56,14 +56,7 @@ void process_message(event_loop *loop, int client_sock, void *context, int event
 void new_client_connection(event_loop *loop, int listener_sock, void *context,
                            int events) {
   local_scheduler_state *s = context;
-  int new_socket = accept(listener_sock, NULL, NULL);
-  if (new_socket < 0) {
-    if (errno != EWOULDBLOCK) {
-      LOG_ERR("accept failed");
-      exit(-1);
-    }
-    return;
-  }
+  int new_socket = accept_client(listener_sock);
   event_loop_add_file(loop, new_socket, EVENT_LOOP_READ, process_message, s);
   LOG_INFO("new connection with fd %d", new_socket);
 }
