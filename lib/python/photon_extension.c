@@ -1,8 +1,8 @@
 #include <Python.h>
 #include "node.h"
 
+#include "common_extension.h"
 #include "photon_client.h"
-#include "types.h"
 #include "task.h"
 
 PyObject *PhotonError;
