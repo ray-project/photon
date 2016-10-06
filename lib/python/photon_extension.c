@@ -5,16 +5,16 @@
 #include "types.h"
 #include "task.h"
 
-PyObject *PhotonClientError;
+PyObject *PhotonError;
 
 // clang-format off
 typedef struct {
   PyObject_HEAD
   photon_conn *photon_connection;
-} PyPhotonClient;
+} PyPhoton;
 // clang-format on
 
-static int PyPhotonClient_init(PyPhotonClient *self, PyObject *args,
+static int PyPhoton_init(PyPhoton *self, PyObject *args,
                                PyObject *kwds) {
   char* socket_name;
   if (!PyArg_ParseTuple(args, "s", &socket_name)) {
@@ -24,41 +24,41 @@ static int PyPhotonClient_init(PyPhotonClient *self, PyObject *args,
   return 0;
 }
 
-static void PyPhotonClient_dealloc(PyPhotonClient *self) {
-  free(((PyPhotonClient *) self)->photon_connection);
+static void PyPhoton_dealloc(PyPhoton *self) {
+  free(((PyPhoton *) self)->photon_connection);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-static PyObject *PyPhotonClient_submit(PyObject *self, PyObject *args) {
+static PyObject *PyPhoton_submit(PyObject *self, PyObject *args) {
   PyObject *py_task;
   if (!PyArg_ParseTuple(args, "O", &py_task)) {
     return NULL;
   }
-  photon_submit(((PyPhotonClient *) self)->photon_connection,
+  photon_submit(((PyPhoton *) self)->photon_connection,
                 ((PyTask *) py_task)->spec);
   Py_RETURN_NONE;
 }
 
-static PyObject *PyPhotonClient_get_task(PyObject *self) {
+static PyObject *PyPhoton_get_task(PyObject *self) {
   task_spec *task_spec =
-      photon_get_task(((PyPhotonClient *) self)->photon_connection);
+      photon_get_task(((PyPhoton *) self)->photon_connection);
   return PyTask_make(task_spec);
 }
 
-static PyMethodDef PyPhotonClient_methods[] = {
-    {"submit", (PyCFunction) PyPhotonClient_submit, METH_VARARGS,
+static PyMethodDef PyPhoton_methods[] = {
+    {"submit", (PyCFunction) PyPhoton_submit, METH_VARARGS,
      "Submit a task to the local scheduler."},
-    {"get_task", (PyCFunction) PyPhotonClient_get_task, METH_NOARGS,
+    {"get_task", (PyCFunction) PyPhoton_get_task, METH_NOARGS,
      "Get a task from the local scheduler."},
     {NULL} /* Sentinel */
 };
 
-static PyTypeObject PyPhotonClientType = {
+static PyTypeObject PyPhotonType = {
     PyObject_HEAD_INIT(NULL) 0,          /* ob_size */
-    "photon.PhotonClient",               /* tp_name */
-    sizeof(PyPhotonClient),              /* tp_basicsize */
+    "photon.Photon",                     /* tp_name */
+    sizeof(PyPhoton),                    /* tp_basicsize */
     0,                                   /* tp_itemsize */
-    (destructor) PyPhotonClient_dealloc, /* tp_dealloc */
+    (destructor) PyPhoton_dealloc,       /* tp_dealloc */
     0,                                   /* tp_print */
     0,                                   /* tp_getattr */
     0,                                   /* tp_setattr */
@@ -74,14 +74,14 @@ static PyTypeObject PyPhotonClientType = {
     0,                                   /* tp_setattro */
     0,                                   /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,                  /* tp_flags */
-    "Photon client object",              /* tp_doc */
+    "Photon object",                     /* tp_doc */
     0,                                   /* tp_traverse */
     0,                                   /* tp_clear */
     0,                                   /* tp_richcompare */
     0,                                   /* tp_weaklistoffset */
     0,                                   /* tp_iter */
     0,                                   /* tp_iternext */
-    PyPhotonClient_methods,              /* tp_methods */
+    PyPhoton_methods,                    /* tp_methods */
     0,                                   /* tp_members */
     0,                                   /* tp_getset */
     0,                                   /* tp_base */
@@ -89,12 +89,12 @@ static PyTypeObject PyPhotonClientType = {
     0,                                   /* tp_descr_get */
     0,                                   /* tp_descr_set */
     0,                                   /* tp_dictoffset */
-    (initproc) PyPhotonClient_init,      /* tp_init */
+    (initproc) PyPhoton_init,            /* tp_init */
     0,                                   /* tp_alloc */
     PyType_GenericNew,                   /* tp_new */
 };
 
-static PyMethodDef photon_client_methods[] = {
+static PyMethodDef photon_methods[] = {
     {NULL} /* Sentinel */
 };
 
@@ -102,20 +102,20 @@ static PyMethodDef photon_client_methods[] = {
 #define PyMODINIT_FUNC void
 #endif
 
-PyMODINIT_FUNC initphoton_client(void) {
+PyMODINIT_FUNC initphoton(void) {
   PyObject *m;
 
-  if (PyType_Ready(&PyPhotonClientType) < 0)
+  if (PyType_Ready(&PyPhotonType) < 0)
     return;
 
-  m = Py_InitModule3("photon_client", photon_client_methods,
+  m = Py_InitModule3("photon", photon_methods,
                      "Example module that creates an extension type.");
 
-  Py_INCREF(&PyPhotonClientType);
-  PyModule_AddObject(m, "PhotonClient", (PyObject *) &PyPhotonClientType);
+  Py_INCREF(&PyPhotonType);
+  PyModule_AddObject(m, "Photon", (PyObject *) &PyPhotonType);
 
-  char photon_client_error[] = "photon_client.error";
-  PhotonClientError = PyErr_NewException(photon_client_error, NULL, NULL);
-  Py_INCREF(PhotonClientError);
-  PyModule_AddObject(m, "photon_client_error", PhotonClientError);
+  char photon_error[] = "photon.error";
+  PhotonError = PyErr_NewException(photon_error, NULL, NULL);
+  Py_INCREF(PhotonError);
+  PyModule_AddObject(m, "photon_error", PhotonError);
 }
