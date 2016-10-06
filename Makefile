@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall --std=c99 -D_XOPEN_SOURCE=500 -D_POSIX_C_SOURCE=200809L -Icommon/thirdparty
+CFLAGS = -g -Wall --std=c99 -D_XOPEN_SOURCE=500 -D_POSIX_C_SOURCE=200809L -Icommon/thirdparty -fPIC
 BUILD = build
 
 all: $(BUILD)/photon_scheduler $(BUILD)/photon_client.a
@@ -17,5 +17,6 @@ common: FORCE
 clean:
 	cd common; make clean
 	rm -r $(BUILD)/*
+	rm *.o
 
 FORCE:
