@@ -21,7 +21,7 @@ class TestPhotonClient(unittest.TestCase):
     self.p2 = subprocess.Popen([scheduler_executable, "-s", scheduler_name, "-r", "127.0.0.1:6379"])
     time.sleep(0.1)
     # Connect to the scheduler.
-    self.photon_client = photon.Photon(scheduler_name)
+    self.photon_client = photon.PhotonClient(scheduler_name)
 
   def tearDown(self):
     # Kill the Redis server.
