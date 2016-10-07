@@ -38,11 +38,17 @@ static PyObject *PyPhotonClient_submit(PyObject *self, PyObject *args) {
   Py_RETURN_NONE;
 }
 
+// clang-format off
 static PyObject *PyPhotonClient_get_task(PyObject *self) {
-  task_spec *task_spec =
-      photon_get_task(((PyPhotonClient *)self)->photon_connection);
+  task_spec *task_spec;
+  /* Drop the global interpreter lock while we get a task because
+   * photon_get_task may block for a long time. */
+  Py_BEGIN_ALLOW_THREADS
+  task_spec = photon_get_task(((PyPhotonClient *)self)->photon_connection);
+  Py_END_ALLOW_THREADS
   return PyTask_make(task_spec);
 }
+// clang-format on
 
 static PyMethodDef PyPhotonClient_methods[] = {
     {"submit", (PyCFunction)PyPhotonClient_submit, METH_VARARGS,
