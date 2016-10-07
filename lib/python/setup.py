@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages, Extension
 
 photon_module = Extension("photon",
-                          sources=["photon_extension.c"],
+                          sources=["photon_extension.c", "../../common/lib/python/common_extension.c"],
                           include_dirs=["../../", "../../common/",
                                         "../../common/thirdparty/",
                                         "../../common/lib/python"],

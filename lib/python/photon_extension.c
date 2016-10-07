@@ -95,6 +95,8 @@ static PyTypeObject PyPhotonType = {
 };
 
 static PyMethodDef photon_methods[] = {
+    {"check_simple_value", check_simple_value, METH_VARARGS,
+     "Should the object be passed by value?"},
     {NULL} /* Sentinel */
 };
 
@@ -105,11 +107,23 @@ static PyMethodDef photon_methods[] = {
 PyMODINIT_FUNC initphoton(void) {
   PyObject *m;
 
+  if (PyType_Ready(&PyTaskType) < 0)
+    return;
+
+  if (PyType_Ready(&PyObjectIDType) < 0)
+    return;
+
   if (PyType_Ready(&PyPhotonType) < 0)
     return;
 
   m = Py_InitModule3("photon", photon_methods,
-                     "Example module that creates an extension type.");
+                     "A module for the local scheduler.");
+
+  Py_INCREF(&PyTaskType);
+  PyModule_AddObject(m, "Task", (PyObject *) &PyTaskType);
+
+  Py_INCREF(&PyObjectIDType);
+  PyModule_AddObject(m, "ObjectID", (PyObject *) &PyObjectIDType);
 
   Py_INCREF(&PyPhotonType);
   PyModule_AddObject(m, "Photon", (PyObject *) &PyPhotonType);

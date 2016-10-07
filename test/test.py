@@ -7,7 +7,6 @@ import unittest
 import random
 import time
 
-import common
 import photon
 
 class TestPhotonClient(unittest.TestCase):
@@ -32,8 +31,8 @@ class TestPhotonClient(unittest.TestCase):
 
   def test_submit_and_get_task(self):
     # TODO(rkn): This should be a FunctionID.
-    function_id = common.ObjectID(20 * "a")
-    object_ids = [common.ObjectID(20 * chr(i)) for i in range(256)]
+    function_id = photon.ObjectID(20 * "a")
+    object_ids = [photon.ObjectID(20 * chr(i)) for i in range(256)]
     args_list = [
       [],
       1 * [1],
@@ -63,7 +62,7 @@ class TestPhotonClient(unittest.TestCase):
 
     for args in args_list:
       for num_return_vals in [0, 1, 2, 3, 5, 10, 100]:
-        task = common.Task(function_id, args, num_return_vals)
+        task = photon.Task(function_id, args, num_return_vals)
         # Submit a task.
         self.photon_client.submit(task)
         # Get the task.
@@ -74,7 +73,7 @@ class TestPhotonClient(unittest.TestCase):
         self.assertEqual(len(args), len(retrieved_args))
         self.assertEqual(num_return_vals, len(returns))
         for i in range(len(retrieved_args)):
-          if isinstance(args[i], common.ObjectID):
+          if isinstance(args[i], photon.ObjectID):
             self.assertEqual(args[i].id(), retrieved_args[i].id())
           else:
             self.assertEqual(args[i], retrieved_args[i])
