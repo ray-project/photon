@@ -1,4 +1,3 @@
-#include "node.h"
 #include <Python.h>
 
 #include "common_extension.h"
