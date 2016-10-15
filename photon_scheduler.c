@@ -183,8 +183,10 @@ void handle_get_task(local_scheduler_state *s, int client_sock) {
   }
 }
 
-void process_plasma_notification(event_loop *loop, int client_sock,
-                                 void *context, int events) {
+void process_plasma_notification(event_loop *loop,
+                                 int client_sock,
+                                 void *context,
+                                 int events) {
   local_scheduler_state *s = context;
   /* Read the notification from Plasma. */
   uint8_t *message = (uint8_t *) malloc(sizeof(object_id));
@@ -268,8 +270,10 @@ void signal_handler(int signal) {
 
 /* End of the cleanup code. */
 
-void start_server(const char *socket_name, const char *redis_addr,
-                  int redis_port, const char *plasma_socket_name) {
+void start_server(const char *socket_name,
+                  const char *redis_addr,
+                  int redis_port,
+                  const char *plasma_socket_name) {
   int fd = bind_ipc_sock(socket_name);
   event_loop *loop = event_loop_create();
   g_state =

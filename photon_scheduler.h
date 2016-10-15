@@ -15,7 +15,9 @@ typedef struct local_scheduler_state local_scheduler_state;
  * @param events Flag for events that are available on the listener socket.
  * @return Void.
  */
-void new_client_connection(event_loop *loop, int listener_sock, void *context,
+void new_client_connection(event_loop *loop,
+                           int listener_sock,
+                           void *context,
                            int events);
 
 /**
@@ -78,7 +80,9 @@ void handle_submit_task(local_scheduler_state *s, task_spec *task);
  * @param events
  * @return Void.
  */
-void process_plasma_notification(event_loop *loop, int client_sock,
-                                 void *context, int events);
+void process_plasma_notification(event_loop *loop,
+                                 int client_sock,
+                                 void *context,
+                                 int events);
 
 #endif /* PHOTON_SCHEDULER_H */
