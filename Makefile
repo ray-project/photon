@@ -8,7 +8,7 @@ $(BUILD)/photon_client.a: photon_client.o
 	ar rcs $(BUILD)/photon_client.a photon_client.o
 
 $(BUILD)/photon_scheduler: photon.h photon_scheduler.c common
-	$(CC) $(CFLAGS) -o $@ photon_scheduler.c common/build/libcommon.a common/thirdparty/hiredis/libhiredis.a -Icommon/thirdparty -Icommon/
+	$(CC) $(CFLAGS) -o $@ photon_scheduler.c common/build/libcommon.a common/thirdparty/hiredis/libhiredis.a -Icommon/thirdparty/ -Icommon/ ../plasma/build/libplasma_client.a -I../plasma/src/ 
 
 common: FORCE
 	git submodule update --init --recursive
