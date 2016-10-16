@@ -46,7 +46,7 @@ struct local_scheduler_state {
    *  waiting for tasks. */
   UT_array *available_worker_queue;
   /** A hash map of the objects that are available in the local Plasma store.
-    * This information could be a little stale. */
+   *  This information could be a little stale. */
   available_object *local_available_objects;
 };
 
