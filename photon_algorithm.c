@@ -26,7 +26,7 @@ struct scheduler_state {
   available_object *local_objects;
 };
 
-scheduler_state* make_scheduler_state(void) {
+scheduler_state *make_scheduler_state(void) {
   scheduler_state *state = malloc(sizeof(scheduler_state));
   /* Initialize an empty hash map for the cache of local available objects. */
   state->local_objects = NULL;
@@ -104,18 +104,20 @@ int find_and_schedule_task_if_possible(scheduler_info *info,
   return found_task_to_schedule;
 }
 
-void handle_task_submitted(scheduler_info *info, scheduler_state *s, task_spec *task) {
+void handle_task_submitted(scheduler_info *info,
+                           scheduler_state *s,
+                           task_spec *task) {
   /* Create a unique task instance ID. This is different from the task ID and
    * is used to distinguish between potentially multiple executions of the
    * task. */
   task_iid task_iid = globally_unique_id();
   task_instance *instance =
-          make_task_instance(task_iid, task, TASK_STATUS_WAITING, NIL_ID);
+      make_task_instance(task_iid, task, TASK_STATUS_WAITING, NIL_ID);
   /* If this task's dependencies are available locally, and if there is an
    * available worker, then assign this task to an available worker. Otherwise,
    * add this task to the local task queue. */
   int schedule_locally =
-          (utarray_len(s->available_workers) > 0) && can_run(s, task);
+      (utarray_len(s->available_workers) > 0) && can_run(s, task);
   if (schedule_locally) {
     /* Get the last available worker in the available worker queue. */
     int *worker_index = (int *) utarray_back(s->available_workers);
@@ -138,14 +140,15 @@ void handle_task_submitted(scheduler_info *info, scheduler_state *s, task_spec *
   }
 }
 
-void handle_worker_available(scheduler_info *info, scheduler_state *state, int worker_index) {
-  int scheduled_task = find_and_schedule_task_if_possible(info, state, worker_index);
+void handle_worker_available(scheduler_info *info,
+                             scheduler_state *state,
+                             int worker_index) {
+  int scheduled_task =
+      find_and_schedule_task_if_possible(info, state, worker_index);
   /* If we couldn't find a task to schedule, add the worker to the queue of
    * available workers. */
   if (!scheduled_task) {
-    for (int *p =
-            (int *) utarray_front(state->available_workers);
-         p != NULL;
+    for (int *p = (int *) utarray_front(state->available_workers); p != NULL;
          p = (int *) utarray_next(state->available_workers, p)) {
       CHECK(*p != worker_index);
     }
@@ -156,18 +159,18 @@ void handle_worker_available(scheduler_info *info, scheduler_state *state, int w
   }
 }
 
-void handle_object_available(scheduler_info *info, scheduler_state *state, object_id object_id) {
+void handle_object_available(scheduler_info *info,
+                             scheduler_state *state,
+                             object_id object_id) {
   /* TODO(rkn): When does this get freed? */
   available_object *entry =
-          (available_object *) malloc(sizeof(available_object));
+      (available_object *) malloc(sizeof(available_object));
   entry->object_id = object_id;
   HASH_ADD(handle, state->local_objects, object_id, sizeof(object_id), entry);
 
   /* Check if we can schedule any tasks. */
   int num_tasks_scheduled = 0;
-  for (int *p =
-          (int *) utarray_front(state->available_workers);
-       p != NULL;
+  for (int *p = (int *) utarray_front(state->available_workers); p != NULL;
        p = (int *) utarray_next(state->available_workers, p)) {
     /* Schedule a task on this worker if possible. */
     int scheduled_task = find_and_schedule_task_if_possible(info, state, *p);

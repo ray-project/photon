@@ -22,14 +22,17 @@ void new_client_connection(event_loop *loop,
                            int events);
 
 /**
- * This function can be called by the scheduling algorithm to assign a task to a worker.
+ * This function can be called by the scheduling algorithm to assign a task
+ * to a worker.
  *
  * @param info
  * @param task The task that is submitted to the worker.
  * @param worker_index The index of the worker the task is submitted to.
  * @return Void.
  */
-void assign_task_to_worker(scheduler_info *info, task_spec *task, int worker_index);
+void assign_task_to_worker(scheduler_info *info,
+                           task_spec *task,
+                           int worker_index);
 
 /**
  * This is the callback that is used to process a notification from the Plasma

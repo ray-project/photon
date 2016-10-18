@@ -62,7 +62,8 @@ local_scheduler_state *init_local_scheduler(event_loop *loop,
   state->scheduler_info = malloc(sizeof(scheduler_info));
   utarray_new(state->scheduler_info->workers, &worker_icd);
   /* Connect to Redis. */
-  state->scheduler_info->db = db_connect(redis_addr, redis_port, "photon", "", -1);
+  state->scheduler_info->db =
+      db_connect(redis_addr, redis_port, "photon", "", -1);
   db_attach(state->scheduler_info->db, loop);
   /* Add scheduler state. */
   state->scheduler_state = make_scheduler_state();
@@ -77,7 +78,9 @@ void free_local_scheduler(local_scheduler_state *s) {
   free(s);
 }
 
-void assign_task_to_worker(scheduler_info *info, task_spec *task, int worker_index) {
+void assign_task_to_worker(scheduler_info *info,
+                           task_spec *task,
+                           int worker_index) {
   CHECK(worker_index < utarray_len(info->workers));
   worker *w = (worker *) utarray_eltptr(info->workers, worker_index);
   write_message(w->sock, EXECUTE_TASK, task_size(task), (uint8_t *) task);
@@ -118,7 +121,8 @@ void process_message(event_loop *loop, int client_sock, void *context,
     worker_index *wi;
     HASH_FIND_INT(s->worker_index, &client_sock, wi);
     printf("worker_index is %" PRId64 "\n", wi->worker_index);
-    handle_worker_available(s->scheduler_info, s->scheduler_state, wi->worker_index);
+    handle_worker_available(s->scheduler_info, s->scheduler_state,
+                            wi->worker_index);
   } break;
   case DISCONNECT_CLIENT: {
     LOG_INFO("Disconnecting client on fd %d", client_sock);
