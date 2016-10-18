@@ -2,7 +2,7 @@
 #define PHOTON_SCHEDULER_H
 
 #include "task.h"
-#include "common/event_loop.h"
+#include "event_loop.h"
 
 typedef struct local_scheduler_state local_scheduler_state;
 
@@ -21,11 +21,13 @@ void new_client_connection(event_loop *loop,
                            void *context,
                            int events);
 
-/** This function can be called by the scheduling algorithm to assign a task to a worker.
+/**
+ * This function can be called by the scheduling algorithm to assign a task to a worker.
  *
- *  @param info
- *  @param task The task that is submitted to the worker.
- *  @param worker_index The index of the worker the task is submitted to.
+ * @param info
+ * @param task The task that is submitted to the worker.
+ * @param worker_index The index of the worker the task is submitted to.
+ * @return Void.
  */
 void assign_task_to_worker(scheduler_info *info, task_spec *task, int worker_index);
 

@@ -26,7 +26,7 @@ struct scheduler_state {
   available_object *local_objects;
 };
 
-scheduler_state* make_scheduler_state() {
+scheduler_state* make_scheduler_state(void) {
   scheduler_state *state = malloc(sizeof(scheduler_state));
   /* Initialize an empty hash map for the cache of local available objects. */
   state->local_objects = NULL;
@@ -150,7 +150,7 @@ void handle_worker_available(scheduler_info *info, scheduler_state *state, int w
       CHECK(*p != worker_index);
     }
     /* Add client_sock to a list of available workers. This struct will be freed
-    * when a task is assigned to this worker. */
+     * when a task is assigned to this worker. */
     utarray_push_back(state->available_workers, &worker_index);
     LOG_INFO("Adding worker_index %d to available workers.\n", worker_index);
   }
@@ -179,5 +179,3 @@ void handle_object_available(scheduler_info *info, scheduler_state *state, objec
   }
   utarray_erase(state->available_workers, 0, num_tasks_scheduled);
 }
-
-

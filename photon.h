@@ -28,7 +28,7 @@ UT_icd worker_icd;
 /** Resources that are exposed to the scheduling algorithm. */
 typedef struct {
   /** List of workers available to this node. The index into this array
-   * is the worker_index and is used to identify workers throughout the program. */
+   *  is the worker_index and is used to identify workers throughout the program. */
   UT_array *workers;
   /* The handle to the database. */
   db_handle *db;
