@@ -25,7 +25,7 @@ scheduler_state *make_scheduler_state(void);
 /**
  * Free the scheduler state.
  *
- * @param state Internal state of hte scheduling algorithm.
+ * @param state Internal state of the scheduling algorithm.
  * @return Void.
  */
 void free_scheduler_state(scheduler_state *state);
@@ -34,7 +34,8 @@ void free_scheduler_state(scheduler_state *state);
  * This function will be called when a new task is submitted by a worker for
  * execution.
  *
- * @param info Info about resources exposed by photon to the scheduling algorithm.
+ * @param info Info about resources exposed by photon to the scheduling
+ *        algorithm.
  * @param state State of the scheduling algorithm.
  * @param task Task that is submitted by the worker.
  * @return Void.
@@ -47,7 +48,8 @@ void handle_task_submitted(scheduler_info *info,
  * This function will be called when a task is assigned by the global scheduler
  * for execution on this local scheduler.
  *
- * @param info Info about resources exposed by photon to the scheduling algorithm.
+ * @param info Info about resources exposed by photon to the scheduling
+ *        algorithm.
  * @param state State of the scheduling algorithm.
  * @param task Task that is assigned by the global scheduler.
  * @return Void.
