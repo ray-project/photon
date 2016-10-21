@@ -50,7 +50,7 @@ install:
   - cd ..
   - git clone https://github.com/ray-project/plasma.git
   - cd plasma
-  - git checkout f189ca746b57f22371ef10077aa535492bbd8421
+  - git checkout 89987f06377fc89b268e08cd20fa2bc229fe00ab
   - make
   - source setup-env.sh
   - cd ../photon
